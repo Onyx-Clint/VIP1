@@ -1,0 +1,482 @@
+-- =====================================================
+-- ONYX KEY SYSTEM (SINGLE KEY)
+-- =====================================================
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local MASTER_KEY = "ONYX-A1B2" -- <<< EINZIGER KEY
+local unlocked = false
+
+-- Key GUI
+local keyGui = Instance.new("ScreenGui", player.PlayerGui)
+keyGui.Name = "ONYX_KEY"
+keyGui.ResetOnSpawn = false
+
+local frameK = Instance.new("Frame", keyGui)
+frameK.Size = UDim2.fromOffset(320,200)
+frameK.Position = UDim2.fromScale(0.5,0.5)
+frameK.AnchorPoint = Vector2.new(0.5,0.5)
+frameK.BackgroundColor3 = Color3.fromRGB(10,10,20)
+frameK.BorderSizePixel = 0
+Instance.new("UICorner", frameK)
+
+local gradK = Instance.new("UIGradient", frameK)
+gradK.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(90,0,150)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(0,140,255))
+}
+
+local strokeK = Instance.new("UIStroke", frameK)
+strokeK.Thickness = 3
+strokeK.Color = Color3.fromRGB(170,0,255)
+
+-- Title
+local titleK = Instance.new("TextLabel", frameK)
+titleK.Size = UDim2.new(1,0,0,40)
+titleK.BackgroundTransparency = 1
+titleK.Text = "ONYX ACCESS"
+titleK.Font = Enum.Font.GothamBlack
+titleK.TextSize = 22
+titleK.TextColor3 = Color3.new(1,1,1)
+
+-- Key Eingabe
+local boxK = Instance.new("TextBox", frameK)
+boxK.Size = UDim2.fromOffset(260,36)
+boxK.Position = UDim2.fromOffset(30,70)
+boxK.PlaceholderText = "Enter Key"
+boxK.Text = ""
+boxK.BackgroundColor3 = Color3.fromRGB(20,20,35)
+boxK.TextColor3 = Color3.new(1,1,1)
+boxK.Font = Enum.Font.Gotham
+boxK.TextSize = 14
+Instance.new("UICorner", boxK)
+
+-- Unlock Button
+local btnK = Instance.new("TextButton", frameK)
+btnK.Size = UDim2.fromOffset(260,36)
+btnK.Position = UDim2.fromOffset(30,120)
+btnK.Text = "UNLOCK"
+btnK.Font = Enum.Font.GothamBold
+btnK.TextSize = 14
+btnK.TextColor3 = Color3.new(1,1,1)
+btnK.BackgroundColor3 = Color3.fromRGB(40,40,70)
+Instance.new("UICorner", btnK)
+
+-- Unlock Funktion
+btnK.MouseButton1Click:Connect(function()
+	if boxK.Text == MASTER_KEY then
+		unlocked = true
+		keyGui:Destroy()
+	else
+		player:Kick("Falscher Key eingegeben!")
+	end
+end)
+
+-- Warten bis Key freigeschaltet
+repeat task.wait() until unlocked
+
+
+-- =====================================================
+-- GALAXY INTRO ANIMATION (2s, kleiner BG)
+-- =====================================================
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.Name = "GALAXY_INTRO"
+gui.ResetOnSpawn = false
+
+-- Text Label (mittig)
+local text = Instance.new("TextLabel", gui)
+text.Size = UDim2.fromOffset(300,100) -- Textfeld etwas kleiner
+text.Position = UDim2.fromScale(0.5,0.5)
+text.AnchorPoint = Vector2.new(0.5,0.5)
+text.BackgroundTransparency = 1
+text.Font = Enum.Font.GothamBlack
+text.TextSize = 40
+text.Text = "Hallo, Nawid!"
+text.TextColor3 = Color3.fromRGB(255,255,255)
+text.TextStrokeTransparency = 0
+text.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+text.TextScaled = true
+text.RichText = true
+text.TextTransparency = 1 -- Start unsichtbar
+
+-- Hintergrund Frame (nur etwas größer als Text)
+local padding = 20
+local bg = Instance.new("Frame", gui)
+bg.Size = UDim2.fromOffset(text.Size.X.Offset + padding, text.Size.Y.Offset + padding)
+bg.Position = text.Position
+bg.AnchorPoint = Vector2.new(0.5,0.5)
+bg.BackgroundColor3 = Color3.fromRGB(0,0,0)
+bg.BackgroundTransparency = 0
+Instance.new("UICorner", bg) -- abgerundete Ecken
+
+-- Galaxy Effekt (UIGradient) auf Text
+local grad = Instance.new("UIGradient", text)
+grad.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(170,0,255)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0,255,255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(255,0,255))
+}
+grad.Rotation = 0
+
+-- TweenService
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+-- Fade In Tween (0.5s)
+local fadeInText = TweenService:Create(text, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0})
+local fadeInBG = TweenService:Create(bg, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.3})
+fadeInText:Play()
+fadeInBG:Play()
+
+-- Rotate Gradient während Animation
+local startTime = tick()
+local conn
+conn = RunService.RenderStepped:Connect(function()
+	local t = tick() - startTime
+	grad.Rotation = (t*180) % 360
+end)
+
+-- Fade Out Tween nach 1.5s (damit alles in 2s fertig)
+task.delay(1.5, function()
+	local fadeOutText = TweenService:Create(text, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {TextTransparency = 1})
+	local fadeOutBG = TweenService:Create(bg, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1})
+	fadeOutText:Play()
+	fadeOutBG:Play()
+	task.delay(0.5, function()
+		conn:Disconnect()
+		gui:Destroy()
+	end)
+end)
+
+-- Warten bis Key freigeschaltet
+repeat task.wait() until unlocked
+
+-- Warten 2 Sekunden nach Key-Eingabe
+task.wait(2)
+
+-- Ab hier startet dann der Rest deines Scripts
+
+
+-- =====================================================
+-- ONYX CLINT – GODMODE FIXED + GUI BIND UPGRADE
+-- =====================================================
+
+-- SERVICES
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+-- STATES
+local Fly = false
+local Aimbot = false
+local Noclip = false
+local ESPEnabled = false
+local GodMode = false
+local AimTarget = "Body" -- "Head" oder "Body"
+
+-- KEYBINDS
+local binds = {
+	Fly = Enum.KeyCode.F,
+	Aimbot = Enum.KeyCode.X,
+	Noclip = Enum.KeyCode.N,
+	ESP = Enum.KeyCode.V,
+	God = Enum.KeyCode.O,
+	AimToggle = Enum.KeyCode.M -- Kopf/Körper toggle
+}
+local waitingForBind = nil
+local waitingForBindFeature = nil
+
+-- VARS
+local char, hum, root
+local bv, bg
+local FLY_SPEED = 60
+local ESP = {}
+local PURPLE = Color3.fromRGB(170,0,255)
+local BORDER_COLOR = Color3.fromRGB(200,0,255)
+local borderValue = 0
+
+-- =====================================================
+-- CHARACTER
+-- =====================================================
+local function resetFly()
+	if bv then bv:Destroy() bv=nil end
+	if bg then bg:Destroy() bg=nil end
+	camera.CameraType = Enum.CameraType.Custom
+end
+
+local function onChar(c)
+	char = c
+	hum = c:WaitForChild("Humanoid")
+	root = c:WaitForChild("HumanoidRootPart")
+	Fly, Aimbot, Noclip, GodMode = false, false, false, false
+	resetFly()
+end
+
+player.CharacterAdded:Connect(onChar)
+if player.Character then onChar(player.Character) end
+
+-- =====================================================
+-- GUI
+-- =====================================================
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.Name = "ONYX_CLINT"
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.fromOffset(300, 450)
+frame.Position = UDim2.fromScale(0.02, 0.55)
+frame.BackgroundColor3 = Color3.fromRGB(12,12,20)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+Instance.new("UICorner", frame)
+
+-- Animated border
+local border = Instance.new("UIStroke", frame)
+border.Thickness = 3
+border.Color = BORDER_COLOR
+border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+local grad = Instance.new("UIGradient", frame)
+grad.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(120,0,180)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(0,170,255))
+}
+
+local function label(text,y,size)
+	local l = Instance.new("TextLabel", frame)
+	l.Size = UDim2.fromOffset(260,size or 20)
+	l.Position = UDim2.fromOffset(20,y)
+	l.BackgroundTransparency = 1
+	l.Text = text
+	l.TextColor3 = Color3.new(1,1,1)
+	l.Font = Enum.Font.GothamBold
+	l.TextSize = 18
+	return l
+end
+
+local function button(text,y)
+	local b = Instance.new("TextButton", frame)
+	b.Size = UDim2.fromOffset(260,32)
+	b.Position = UDim2.fromOffset(20,y)
+	b.BackgroundColor3 = Color3.fromRGB(30,30,50)
+	b.TextColor3 = Color3.new(1,1,1)
+	b.Font = Enum.Font.Gotham
+	b.TextSize = 14
+	b.Text = text
+	Instance.new("UICorner", b)
+	return b
+end
+
+label("ONYX CLINT",10,30)
+
+-- Buttons
+local flyBtn = button("Fly ["..binds.Fly.Name.."]",55)
+local aimBtn = button("Aimbot ["..binds.Aimbot.Name.."]",95)
+local nocBtn = button("Noclip ["..binds.Noclip.Name.."]",135)
+local espBtn = button("ESP (Box + Line) ["..binds.ESP.Name.."]",175)
+local godBtn = button("God Mode ["..binds.God.Name.."]",215)
+local aimToggleBtn = button("Aim Target ["..AimTarget.."] ["..binds.AimToggle.Name.."]",255)
+
+local bindChangeBtn = button("Change Selected Bind",300)
+
+-- Connect GUI clicks
+flyBtn.MouseButton1Click:Connect(function() waitingForBindFeature="Fly" end)
+aimBtn.MouseButton1Click:Connect(function() waitingForBindFeature="Aimbot" end)
+nocBtn.MouseButton1Click:Connect(function() waitingForBindFeature="Noclip" end)
+espBtn.MouseButton1Click:Connect(function() waitingForBindFeature="ESP" end)
+godBtn.MouseButton1Click:Connect(function() waitingForBindFeature="God" end)
+aimToggleBtn.MouseButton1Click:Connect(function() waitingForBindFeature="AimToggle" end)
+
+bindChangeBtn.MouseButton1Click:Connect(function()
+	if waitingForBindFeature then
+		waitingForBind="bind"
+		bindChangeBtn.Text="Press Key for "..waitingForBindFeature
+	end
+end)
+
+-- =====================================================
+-- INPUT
+-- =====================================================
+UIS.InputBegan:Connect(function(input,gpe)
+	if gpe then return end
+
+	if waitingForBind=="bind" and waitingForBindFeature then
+		binds[waitingForBindFeature] = input.KeyCode
+		-- Update Button Text
+		if waitingForBindFeature=="Fly" then flyBtn.Text="Fly ["..input.KeyCode.Name.."]" end
+		if waitingForBindFeature=="Aimbot" then aimBtn.Text="Aimbot ["..input.KeyCode.Name.."]" end
+		if waitingForBindFeature=="Noclip" then nocBtn.Text="Noclip ["..input.KeyCode.Name.."]" end
+		if waitingForBindFeature=="ESP" then espBtn.Text="ESP ["..input.KeyCode.Name.."]" end
+		if waitingForBindFeature=="God" then godBtn.Text="God Mode ["..input.KeyCode.Name.."]" end
+		if waitingForBindFeature=="AimToggle" then aimToggleBtn.Text="Aim Target ["..AimTarget.."] ["..input.KeyCode.Name.."]" end
+		waitingForBind=nil
+		waitingForBindFeature=nil
+		bindChangeBtn.Text="Change Selected Bind"
+		return
+	end
+
+	-- Toggle features with keybinds
+	if input.KeyCode == binds.Fly then Fly = not Fly end
+	if input.KeyCode == binds.Aimbot then Aimbot = not Aimbot end
+	if input.KeyCode == binds.Noclip then Noclip = not Noclip end
+	if input.KeyCode == binds.ESP then ESPEnabled = not ESPEnabled end
+	if input.KeyCode == binds.God then GodMode = not GodMode end
+	if input.KeyCode == binds.AimToggle then
+		if AimTarget=="Body" then AimTarget="Head" else AimTarget="Body" end
+		aimToggleBtn.Text="Aim Target ["..AimTarget.."] ["..binds.AimToggle.Name.."]"
+	end
+
+	if Fly and not bv then
+		hum.PlatformStand=true
+		camera.CameraType=Enum.CameraType.Scriptable
+		bv=Instance.new("BodyVelocity",root)
+		bv.MaxForce=Vector3.new(1e5,1e5,1e5)
+		bg=Instance.new("BodyGyro",root)
+		bg.MaxTorque=Vector3.new(1e5,1e5,1e5)
+		bg.P=2e4
+	elseif not Fly then
+		hum.PlatformStand=false
+		resetFly()
+	end
+end)
+
+-- =====================================================
+-- ESP + HP BAR
+-- =====================================================
+local function clearESP()
+	for _,v in pairs(ESP) do
+		v.box:Destroy()
+		v.line:Destroy()
+		v.hpBg:Destroy()
+		v.hpFill:Destroy()
+	end
+	ESP={}
+end
+
+local function createESP(plr)
+	if ESP[plr] then return end
+	local hrp=plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+	local hum2=plr.Character and plr.Character:FindFirstChild("Humanoid")
+	if not hrp or not hum2 then return end
+
+	local box=Instance.new("BoxHandleAdornment")
+	box.Adornee=hrp
+	box.Size=Vector3.new(4,6,2)
+	box.AlwaysOnTop=true
+	box.ZIndex=10
+	box.Transparency=0.4
+	box.Color3=PURPLE
+	box.Parent=gui
+
+	local a0=Instance.new("Attachment",camera)
+	local a1=Instance.new("Attachment",hrp)
+
+	local beam=Instance.new("Beam")
+	beam.Attachment0=a0
+	beam.Attachment1=a1
+	beam.Width0=0.05
+	beam.Width1=0.05
+	beam.Color=ColorSequence.new(PURPLE)
+	beam.Parent=gui
+
+	local hpBg=Instance.new("Frame",gui)
+	hpBg.Size=UDim2.fromOffset(40,5)
+	hpBg.BackgroundColor3=Color3.fromRGB(40,40,40)
+
+	local hpFill=Instance.new("Frame",hpBg)
+	hpFill.Size=UDim2.fromScale(1,1)
+	hpFill.BackgroundColor3=Color3.fromRGB(0,255,0)
+
+	ESP[plr]={box=box,line=beam,hpBg=hpBg,hpFill=hpFill,hum=hum2,hrp=hrp}
+end
+
+-- =====================================================
+-- TARGET
+-- =====================================================
+local function getNearest()
+	local best,dist=nil,math.huge
+	for _,p in ipairs(Players:GetPlayers()) do
+		if p~=player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+			local targetPart
+			if AimTarget=="Head" then targetPart=p.Character:FindFirstChild("Head") or p.Character.HumanoidRootPart
+			else targetPart=p.Character.HumanoidRootPart end
+			local d=(targetPart.Position-root.Position).Magnitude
+			if d<dist then dist=d best=targetPart end
+		end
+	end
+	return best
+end
+
+-- =====================================================
+-- MAIN LOOP
+-- =====================================================
+RunService.RenderStepped:Connect(function()
+	if not root then return end
+
+	-- Animate border
+	borderValue = (tick()%2)/2
+	border.Color = Color3.fromHSV(0.83,borderValue,1) -- lila pulsierend
+
+	-- GODMODE
+	if GodMode and hum then
+		hum.MaxHealth=1e9
+		hum.Health=hum.MaxHealth
+	end
+
+	-- NOCLIP
+	if Noclip then
+		for _,v in ipairs(char:GetDescendants()) do
+			if v:IsA("BasePart") then v.CanCollide=false end
+		end
+	end
+
+	-- FLY
+	if Fly and bv and bg then
+		local cam=camera.CFrame
+		local dir=Vector3.zero
+		if UIS:IsKeyDown(Enum.KeyCode.W) then dir+=cam.LookVector end
+		if UIS:IsKeyDown(Enum.KeyCode.S) then dir-=cam.LookVector end
+		if UIS:IsKeyDown(Enum.KeyCode.A) then dir-=cam.RightVector end
+		if UIS:IsKeyDown(Enum.KeyCode.D) then dir+=cam.RightVector end
+		if UIS:IsKeyDown(Enum.KeyCode.Space) then dir+=Vector3.yAxis end
+		if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then dir-=Vector3.yAxis end
+		if dir.Magnitude>0 then dir=dir.Unit end
+		bv.Velocity=dir*FLY_SPEED
+		bg.CFrame=cam
+	end
+
+	-- AIMBOT
+	if Aimbot then
+		local t=getNearest()
+		if t then
+			camera.CFrame=CFrame.new(root.Position+Vector3.new(0,2,0),t.Position)
+		end
+	end
+
+	-- ESP UPDATE
+	if not ESPEnabled then clearESP()
+	else
+		for _,p in ipairs(Players:GetPlayers()) do
+			if p~=player and p.Character then createESP(p) end
+		end
+		for _,v in pairs(ESP) do
+			local pos,onScreen=camera:WorldToViewportPoint(v.hrp.Position+Vector3.new(0,4,0))
+			if onScreen then
+				v.hpBg.Position=UDim2.fromOffset(pos.X-20,pos.Y)
+				local hp=math.clamp(v.hum.Health/v.hum.MaxHealth,0,1)
+				v.hpFill.Size=UDim2.fromScale(hp,1)
+				if hp>0.6 then v.hpFill.BackgroundColor3=Color3.fromRGB(0,255,0)
+				elseif hp>0.3 then v.hpFill.BackgroundColor3=Color3.fromRGB(255,170,0)
+				else v.hpFill.BackgroundColor3=Color3.fromRGB(255,0,0) end
+			end
+		end
+	end
+end)
